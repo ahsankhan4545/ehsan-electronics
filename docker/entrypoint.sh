@@ -23,6 +23,11 @@ php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
 
+# Background queue worker — order confirmation mail must not run in the HTTP request.
+# php artisan serve never flushes before terminating callbacks, so sync SMTP blocks checkout.
+echo "Starting queue worker..."
+php artisan queue:work database --sleep=1 --tries=2 --timeout=30 --memory=128 >> /proc/1/fd/1 2>&1 &
+
 PORT="${PORT:-8000}"
 echo "Starting server on 0.0.0.0:${PORT}..."
 exec php artisan serve --host=0.0.0.0 --port="${PORT}"

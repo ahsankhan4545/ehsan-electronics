@@ -68,38 +68,20 @@ class CheckoutService
 
             $this->cartService->clear();
 
-            // Send after DB commit AND after the HTTP response so checkout redirects
-            // immediately. Do NOT use ShouldQueue — Railway has no queue worker.
-            // Gmail SMTP can take seconds; afterResponse keeps UX fast without dropping mail.
-            DB::afterCommit(function () use ($user, $order) {
-                $orderId = $order->id;
-                $userId = $user->id;
-
-                dispatch(function () use ($userId, $orderId) {
-                    try {
-                        $user = User::query()->find($userId);
-                        $freshOrder = Order::query()->with('items.product')->find($orderId);
-
-                        if (! $user || ! $freshOrder) {
-                            Log::warning('Order confirmation skipped — user/order missing', [
-                                'user_id' => $userId,
-                                'order_id' => $orderId,
-                            ]);
-
-                            return;
-                        }
-
-                        $user->notify(new OrderConfirmedNotification($freshOrder));
-                    } catch (\Throwable $e) {
-                        Log::error('Order confirmation email failed', [
-                            'user_id' => $userId,
-                            'order_id' => $orderId,
-                            'error' => $e->getMessage(),
-                        ]);
-                        report($e);
-                    }
-                })->afterResponse();
-            });
+            // NEVER send mail in this HTTP request.
+            // OrderConfirmedNotification is ShouldQueue + afterCommit — notify() only
+            // inserts a jobs row after the DB commit. Queue worker sends mail later.
+            // (php artisan serve does not flush before afterResponse; sync SMTP blocked checkout.)
+            try {
+                $user->notify(new OrderConfirmedNotification($order));
+            } catch (\Throwable $e) {
+                Log::error('Order confirmation notify dispatch failed', [
+                    'user_id' => $user->id,
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+                report($e);
+            }
 
             return $order;
         });

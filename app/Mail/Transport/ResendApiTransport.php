@@ -46,9 +46,15 @@ class ResendApiTransport extends AbstractTransport
             $payload['text'] = $text;
         }
 
+        $timeout = (int) env('MAIL_TIMEOUT', 8);
+        if ($timeout < 1) {
+            $timeout = 8;
+        }
+
         $response = Http::withToken($this->apiKey)
             ->acceptJson()
-            ->timeout((int) config('mail.mailers.smtp.timeout', 15))
+            ->timeout($timeout)
+            ->connectTimeout(min(5, $timeout))
             ->post('https://api.resend.com/emails', $payload);
 
         if ($response->failed()) {
