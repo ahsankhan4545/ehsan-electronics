@@ -1,8 +1,7 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "composer install --no-dev --optimize-autoloader --no-interaction && npm ci && npm run build"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && php artisan migrate --force && php artisan db:seed --force && php artisan storage:link && php artisan config:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 5
+restartPolicyMaxRetries = 10
