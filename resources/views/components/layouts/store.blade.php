@@ -3,14 +3,34 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#fed700">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ehsan Electronics">
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192.png') }}">
     <title>{{ $title ?? config('app.name', 'Ehsan Electronics') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=oswald:500,600,700|source-sans-3:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
-<body class="font-sans antialiased bg-white text-mc-dark" x-data="{ mobileNav: false, departmentsOpen: false }">
+<body class="font-sans antialiased bg-white text-mc-dark" x-data="{ mobileNav: false, departmentsOpen: false, showInstall: false }"
+      x-init="
+        try {
+          const dismissed = localStorage.getItem('ee_install_dismissed');
+          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          showInstall = !dismissed && !isStandalone && isMobile;
+        } catch (e) { showInstall = false; }
+      ">
 
     {{-- Top bar --}}
     <div class="bg-mc-darker text-xs text-white/80">
@@ -18,6 +38,7 @@
             <p class="hidden sm:block">Welcome to <span class="font-semibold text-mc-yellow">Ehsan Electronics</span> — Pakistan</p>
             <p class="sm:hidden text-mc-yellow font-semibold">Ehsan Electronics</p>
             <div class="flex items-center gap-4">
+                <a href="{{ route('mobile') }}" class="hover:text-mc-yellow font-semibold text-mc-yellow">Get App</a>
                 @auth
                     <span class="hidden md:inline">Hi, {{ auth()->user()->name }}</span>
                     @if (auth()->user()->isAdmin())
@@ -115,6 +136,7 @@
                     <a href="{{ route('orders.index') }}" class="px-4 py-3 text-sm font-semibold uppercase tracking-wide hover:text-mc-yellow">Orders</a>
                 @endauth
                 <a href="{{ route('cart.index') }}" class="px-4 py-3 text-sm font-semibold uppercase tracking-wide hover:text-mc-yellow">Cart</a>
+                <a href="{{ route('mobile') }}" class="px-4 py-3 text-sm font-semibold uppercase tracking-wide hover:text-mc-yellow {{ request()->routeIs('mobile') ? 'text-mc-yellow' : '' }}">Get App</a>
             </div>
 
             <button type="button" class="ml-auto flex items-center gap-2 py-3 text-sm font-semibold uppercase md:hidden" @click="mobileNav = !mobileNav">
@@ -127,11 +149,34 @@
             <a href="{{ route('home') }}" class="block py-2 text-sm uppercase hover:text-mc-yellow">Home</a>
             <a href="{{ route('shop.index') }}" class="block py-2 text-sm uppercase hover:text-mc-yellow">Shop</a>
             <a href="{{ route('cart.index') }}" class="block py-2 text-sm uppercase hover:text-mc-yellow">Cart</a>
+            <a href="{{ route('mobile') }}" class="block py-2 text-sm uppercase text-mc-yellow hover:text-white">Get App / QR</a>
             @foreach (($navCategories ?? collect()) as $category)
                 <a href="{{ route('shop.index', ['category' => $category->slug]) }}" class="block py-2 text-sm text-white/80 hover:text-mc-yellow">{{ $category->name }}</a>
             @endforeach
         </div>
     </nav>
+
+    {{-- Mobile install / Add to Home Screen hint --}}
+    <div x-show="showInstall" x-cloak
+         class="sticky top-12 z-40 border-b border-mc-yellow/40 bg-mc-darker px-4 py-3 text-white md:hidden"
+         style="padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right));">
+        <div class="mx-auto flex max-w-store items-start gap-3">
+            <img src="{{ asset('icons/icon-192.png') }}" alt="" class="mt-0.5 h-10 w-10 rounded-lg border border-white/10 shrink-0">
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-mc-yellow">Install App</p>
+                <p class="mt-0.5 text-xs text-white/70 leading-relaxed">
+                    Home screen pe add karo — app jaisa experience.
+                    Android: browser menu → <strong>Install app</strong> / <strong>Add to Home screen</strong>.
+                    iPhone: Share → <strong>Add to Home Screen</strong>.
+                </p>
+                <a href="{{ route('mobile') }}" class="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-mc-yellow underline">QR / Get App →</a>
+            </div>
+            <button type="button"
+                    class="shrink-0 rounded px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white"
+                    @click="showInstall = false; try { localStorage.setItem('ee_install_dismissed', '1'); } catch (e) {}"
+                    aria-label="Dismiss">✕</button>
+        </div>
+    </div>
 
     <main class="min-h-screen bg-mc-soft">
         <div class="mx-auto max-w-store px-4 py-6 sm:py-8">
@@ -148,7 +193,7 @@
                     Ehsan <span class="text-mc-yellow">Electronics</span>
                 </p>
                 <p class="mt-3 text-sm leading-relaxed">
-                    Pakistan ka electronics store — mobiles, laptops, audio aur accessories. COD, Bank Transfer aur EasyPaisa.
+                    Pakistan ka electronics store — mobiles, laptops, audio aur accessories. COD aur EasyPaisa.
                 </p>
             </div>
             <div>
@@ -159,7 +204,7 @@
             </div>
             <div>
                 <p class="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-white">Customer Care</p>
-                <a href="{{ route('mobile') }}" class="mb-2 block text-sm hover:text-mc-yellow">Mobile QR</a>
+                <a href="{{ route('mobile') }}" class="mb-2 block text-sm hover:text-mc-yellow">Get App / QR</a>
                 <a href="{{ route('shop.index') }}" class="mb-2 block text-sm hover:text-mc-yellow">Shop</a>
                 <a href="{{ route('cart.index') }}" class="mb-2 block text-sm hover:text-mc-yellow">Cart</a>
                 @auth
@@ -173,12 +218,20 @@
             <div>
                 <p class="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-white">Contact</p>
                 <p class="mb-2 text-sm">Pakistan</p>
-                <p class="mb-2 text-sm">COD · Bank · EasyPaisa</p>
+                <p class="mb-2 text-sm">COD · EasyPaisa</p>
             </div>
         </div>
         <div class="border-t border-white/10 py-4 text-center text-xs text-white/40">
             &copy; {{ date('Y') }} Ehsan Electronics. All rights reserved.
         </div>
     </footer>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(function () {});
+            });
+        }
+    </script>
 </body>
 </html>

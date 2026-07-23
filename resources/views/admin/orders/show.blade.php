@@ -71,7 +71,7 @@
                         Update Payment
                     </button>
                 </form>
-                <p class="mt-2 text-xs text-gray-500">Bank / EasyPaisa payment milne ke baad yahan <strong>Paid</strong> select karein.</p>
+                <p class="mt-2 text-xs text-gray-500">EasyPaisa payment milne ke baad yahan <strong>Paid</strong> select karein.</p>
             </div>
         </div>
     </div>

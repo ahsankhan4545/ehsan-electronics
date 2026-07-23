@@ -9,7 +9,7 @@
         <p class="text-stone-500 mb-2">Shukriya! Aapka order #{{ $order->id }} receive ho gaya hai.</p>
         <p class="text-sm text-teal-700 mb-6">Confirmation email bhej di gayi hai: <strong>{{ auth()->user()->email }}</strong></p>
 
-        @if (in_array($order->payment_method, ['bank_transfer', 'easypaisa'], true))
+        @if ($order->payment_method === 'easypaisa')
             <div class="mb-8">
                 @include('partials.payment-instructions', [
                     'method' => $order->payment_method,

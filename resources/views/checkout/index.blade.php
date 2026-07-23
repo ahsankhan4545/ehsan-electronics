@@ -98,23 +98,6 @@
                         </div>
                     </label>
 
-                    @if (config('payments.bank.enabled'))
-                        <label class="flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer"
-                               :class="paymentMethod === 'bank_transfer' ? 'border-teal-600 bg-teal-50' : 'border-stone-200 hover:border-teal-400'">
-                            <input type="radio" name="payment_method" value="bank_transfer" x-model="paymentMethod" class="mt-1 text-teal-700 focus:ring-teal-600">
-                            <div class="flex-1">
-                                <span class="font-semibold text-stone-900">Bank Transfer</span>
-                                <p class="text-sm text-stone-500">Apne bank se transfer karein</p>
-                            </div>
-                        </label>
-                        <div x-show="paymentMethod === 'bank_transfer'" x-cloak>
-                            @include('partials.payment-instructions', [
-                                'method' => 'bank_transfer',
-                                'amount' => $cart->subtotal(),
-                            ])
-                        </div>
-                    @endif
-
                     @if (config('payments.easypaisa.enabled'))
                         <label class="flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer"
                                :class="paymentMethod === 'easypaisa' ? 'border-teal-600 bg-teal-50' : 'border-stone-200 hover:border-teal-400'">

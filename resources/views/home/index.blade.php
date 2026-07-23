@@ -36,7 +36,7 @@
                         Ehsan Electronics
                     </h1>
                     <p class="mt-4 max-w-md text-sm text-white/80 md:text-base">
-                        Latest mobiles, laptops aur gadgets — PKR pricing, COD, Bank Transfer & EasyPaisa.
+                        Latest mobiles, laptops aur gadgets — PKR pricing, COD & EasyPaisa.
                     </p>
                     <a href="{{ route('shop.index') }}" class="btn-accent mt-6 w-fit">Shop Now</a>
                 </div>
@@ -88,7 +88,7 @@
             </div>
             <div>
                 <p class="text-xs font-bold uppercase tracking-wide text-mc-dark">Easy Payment</p>
-                <p class="text-[11px] text-mc-muted">COD · Bank · EasyPaisa</p>
+                <p class="text-[11px] text-mc-muted">COD · EasyPaisa</p>
             </div>
         </div>
         <div class="flex items-center gap-3 border-l border-mc-border px-4 py-5 md:border-l-0">

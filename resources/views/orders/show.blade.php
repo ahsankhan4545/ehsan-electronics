@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="space-y-6">
-            @if (in_array($order->payment_method, ['bank_transfer', 'easypaisa'], true) && $order->payment_status !== 'paid')
+            @if ($order->payment_method === 'easypaisa' && $order->payment_status !== 'paid')
                 @include('partials.payment-instructions', [
                     'method' => $order->payment_method,
                     'amount' => $order->total_price,

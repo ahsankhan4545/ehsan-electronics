@@ -15,16 +15,25 @@ use App\Http\Controllers\ShopController;
 use App\Support\LocalNetwork;
 use Illuminate\Support\Facades\Route;
 
-// Mobile QR access page (like appointment platform)
+// Mobile QR + Get App page (public APP_URL QR for production)
 Route::get('/mobile', function () {
     $port = request()->getPort() ?: 8000;
     $lanIp = LocalNetwork::lanIp();
     $lanUrl = $lanIp ? "http://{$lanIp}:{$port}" : null;
     $currentUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+    $publicUrl = rtrim(config('app.url') ?: $currentUrl, '/');
+
+    // Prefer live Railway / configured APP_URL for the main QR
+    if (str_contains($publicUrl, 'localhost') || str_contains($publicUrl, '127.0.0.1')) {
+        if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
+            $publicUrl = $currentUrl;
+        }
+    }
 
     return view('mobile-open', [
         'lanUrl' => $lanUrl,
         'currentUrl' => $currentUrl,
+        'publicUrl' => $publicUrl,
     ]);
 })->name('mobile');
 

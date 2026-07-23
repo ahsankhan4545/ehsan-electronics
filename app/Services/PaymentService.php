@@ -11,7 +11,6 @@ class PaymentService
     {
         return match ($method) {
             'cod' => $this->processCod(),
-            'bank_transfer' => $this->processManual('bank_transfer'),
             'easypaisa' => $this->processManual('easypaisa'),
             default => throw new \InvalidArgumentException('Invalid payment method.'),
         };
@@ -27,16 +26,14 @@ class PaymentService
     }
 
     /**
-     * Manual bank / EasyPaisa — customer pays offline, admin confirms later.
+     * Manual EasyPaisa — customer pays offline, admin confirms later.
      */
     private function processManual(string $method): array
     {
         return [
             'status' => 'awaiting_payment',
             'payment_id' => null,
-            'message' => $method === 'easypaisa'
-                ? 'Order placed. Please send payment via EasyPaisa and wait for confirmation.'
-                : 'Order placed. Please transfer payment to our bank account and wait for confirmation.',
+            'message' => 'Order placed. Please send payment via EasyPaisa and wait for confirmation.',
         ];
     }
 
@@ -53,6 +50,6 @@ class PaymentService
 
     public function isManual(string $method): bool
     {
-        return in_array($method, ['bank_transfer', 'easypaisa'], true);
+        return $method === 'easypaisa';
     }
 }

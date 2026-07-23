@@ -16,14 +16,7 @@ Shukriya! Aapka order **Ehsan Electronics** pe successfully place ho gaya hai.
 - {{ $item->product->title }} × {{ $item->quantity }} — {{ money($item->subtotal()) }}
 @endforeach
 
-@if ($order->payment_method === 'bank_transfer')
-## Bank Transfer Details
-- **Bank:** {{ config('payments.bank.bank_name') }}
-- **Account Title:** {{ config('payments.bank.account_title') }}
-- **Account No:** {{ config('payments.bank.account_number') }}
-- **IBAN:** {{ config('payments.bank.iban') }}
-- Transfer note mein **Order #{{ $order->id }}** likhein.
-@elseif ($order->payment_method === 'easypaisa')
+@if ($order->payment_method === 'easypaisa')
 ## EasyPaisa Details
 - **Account Title:** {{ config('payments.easypaisa.account_title') }}
 - **Number:** {{ config('payments.easypaisa.number') }}

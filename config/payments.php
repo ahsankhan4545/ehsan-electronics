@@ -6,15 +6,16 @@ return [
     |--------------------------------------------------------------------------
     | Manual payment details (no merchant API)
     |--------------------------------------------------------------------------
-    | Customer pays to your personal bank / EasyPaisa, then you mark Paid in admin.
+    | Customer pays via EasyPaisa (or COD), then you mark Paid in admin.
+    | Bank transfer is disabled — keep PAYMENT_BANK_ENABLED=false.
     */
 
     'bank' => [
-        'enabled' => (bool) env('PAYMENT_BANK_ENABLED', true),
+        'enabled' => (bool) env('PAYMENT_BANK_ENABLED', false),
         'bank_name' => env('PAYMENT_BANK_NAME', 'HBL'),
         'account_title' => env('PAYMENT_BANK_ACCOUNT_TITLE', 'Ehsan Electronics'),
-        'account_number' => env('PAYMENT_BANK_ACCOUNT_NUMBER', '0123456789012'),
-        'iban' => env('PAYMENT_BANK_IBAN', 'PK00HABB0000000000000000'),
+        'account_number' => env('PAYMENT_BANK_ACCOUNT_NUMBER', ''),
+        'iban' => env('PAYMENT_BANK_IBAN', ''),
     ],
 
     'easypaisa' => [

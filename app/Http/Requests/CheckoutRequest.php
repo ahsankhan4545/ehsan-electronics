@@ -29,7 +29,7 @@ class CheckoutRequest extends FormRequest
             'shipping_state' => ['required_if:shipping_same_as_billing,false', 'nullable', 'string', 'max:100'],
             'shipping_zip' => ['required_if:shipping_same_as_billing,false', 'nullable', 'string', 'max:20'],
             'shipping_country' => ['required_if:shipping_same_as_billing,false', 'nullable', 'string', 'max:100'],
-            'payment_method' => ['required', 'in:cod,bank_transfer,easypaisa'],
+            'payment_method' => ['required', 'in:cod,easypaisa'],
         ];
     }
 }
