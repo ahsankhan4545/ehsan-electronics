@@ -37,7 +37,9 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
-                navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(function () {});
+                navigator.serviceWorker.register('{{ asset('sw.js') }}?v=3').then(function (reg) {
+                    reg.update();
+                }).catch(function () {});
             });
         }
     </script>

@@ -56,6 +56,12 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
+# HTTPS on Railway — required for mobile browsers to keep the session cookie
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
+# Leave unset / empty for *.up.railway.app (host-only cookie)
+# SESSION_DOMAIN=
+
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587

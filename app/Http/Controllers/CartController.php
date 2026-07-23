@@ -46,7 +46,9 @@ class CartController extends Controller
         }
 
         if (! auth()->check()) {
-            return redirect()->route('login')
+            // Preserve checkout as the post-login destination (intended URL).
+            return redirect()
+                ->guest(route('login'))
                 ->with('success', 'Product ready! Please login to complete your purchase.');
         }
 

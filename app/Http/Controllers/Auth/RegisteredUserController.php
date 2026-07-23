@@ -54,9 +54,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        $this->cartService->mergeOnLogin($user);
+        // Merge while the guest session_id is still current, then rotate the ID.
+        $previousSessionId = $request->session()->getId();
+        $this->cartService->mergeOnLogin($user, $previousSessionId);
+        $request->session()->regenerate();
 
-        return redirect()->route('home')
+        return redirect()->intended(route('home', absolute: false))
             ->with('success', 'Welcome to Ehsan Electronics! Your account has been created.');
     }
 }

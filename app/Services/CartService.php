@@ -19,10 +19,21 @@ class CartService
 
     public function getCart(): Cart
     {
-        $cart = $this->cartRepository->getOrCreateCart(
-            Auth::user(),
-            session()->getId()
-        );
+        $user = Auth::user();
+        $sessionId = session()->getId();
+
+        if ($user) {
+            // Safety net: merge any lingering guest cart (session payload + session_id).
+            $this->mergeOnLogin($user);
+
+            return $this->cartRepository->getOrCreateCart($user, $sessionId)
+                ->load('items.product');
+        }
+
+        // Prefer cart_id stored in session payload — survives session()->regenerate()
+        // (DB session_id alone does not migrate when the cookie ID changes).
+        $cart = $this->resolveGuestCart($sessionId);
+        session(['cart_id' => $cart->id]);
 
         return $cart->load('items.product');
     }
@@ -99,19 +110,63 @@ class CartService
     public function clear(): void
     {
         $this->cartRepository->clear($this->getCart());
+        session()->forget('cart_id');
     }
 
-    public function mergeOnLogin(User $user): void
+    /**
+     * Merge guest cart into the authenticated user's cart.
+     *
+     * Looks up by session('cart_id') first (survives regenerate), then by session_id.
+     */
+    public function mergeOnLogin(User $user, ?string $previousSessionId = null): void
     {
-        $sessionCart = $this->cartRepository->getOrCreateCart(null, session()->getId());
+        $sessionCart = $this->findGuestCart($previousSessionId ?? session()->getId());
 
-        if ($sessionCart->items()->exists()) {
+        if ($sessionCart && $sessionCart->items()->exists()) {
             $this->cartRepository->mergeSessionCartToUser($sessionCart, $user);
         }
+
+        session()->forget('cart_id');
     }
 
     public function itemCount(): int
     {
         return $this->getCart()->itemCount();
+    }
+
+    private function resolveGuestCart(string $sessionId): Cart
+    {
+        $existing = $this->findGuestCart($sessionId);
+
+        if ($existing) {
+            if ($existing->session_id !== $sessionId) {
+                $existing->update(['session_id' => $sessionId]);
+            }
+
+            return $existing;
+        }
+
+        return $this->cartRepository->getOrCreateCart(null, $sessionId);
+    }
+
+    private function findGuestCart(string $sessionId): ?Cart
+    {
+        $cartId = session('cart_id');
+
+        if ($cartId) {
+            $byId = Cart::query()
+                ->where('id', $cartId)
+                ->whereNull('user_id')
+                ->first();
+
+            if ($byId) {
+                return $byId;
+            }
+        }
+
+        return Cart::query()
+            ->where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->first();
     }
 }

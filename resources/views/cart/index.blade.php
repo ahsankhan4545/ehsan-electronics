@@ -52,7 +52,8 @@
                 @auth
                     <a href="{{ route('checkout.index') }}" class="btn-accent w-full !py-3">Proceed to Checkout</a>
                 @else
-                    <a href="{{ route('login') }}" class="btn-accent w-full !py-3">Login to Checkout</a>
+                    {{-- Hit checkout (auth) so Laravel stores intended URL → return here after login/register --}}
+                    <a href="{{ route('checkout.index') }}" class="btn-accent w-full !py-3">Login to Checkout</a>
                     <p class="mt-3 text-center text-xs text-stone-500">
                         New here? <a href="{{ route('register') }}" class="font-semibold text-teal-700">Sign Up</a>
                     </p>

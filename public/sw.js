@@ -1,11 +1,29 @@
 /* Ehsan Electronics — lightweight offline shell cache (static assets only) */
-const CACHE_NAME = 'ehsan-electronics-shell-v1';
+const CACHE_NAME = 'ehsan-electronics-shell-v3';
 const SHELL_URLS = [
-  '/',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
 ];
+
+/** Paths that must never be intercepted / cached (session, CSRF, cart, auth). */
+function isSensitivePath(pathname) {
+  return (
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/sanctum') ||
+    pathname.startsWith('/livewire') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/cart') ||
+    pathname.startsWith('/checkout') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/logout') ||
+    pathname.startsWith('/orders') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/notifications') ||
+    pathname.includes('/csrf')
+  );
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -29,42 +47,30 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const url = new URL(req.url);
+  let url;
+  try {
+    url = new URL(req.url);
+  } catch (_) {
+    return;
+  }
 
   // Same-origin only
   if (url.origin !== self.location.origin) {
     return;
   }
 
-  // Bypass API-ish / mutating Laravel routes and auth flows
-  if (
-    url.pathname.startsWith('/admin') ||
-    url.pathname.startsWith('/sanctum') ||
-    url.pathname.startsWith('/livewire') ||
-    url.pathname.includes('/checkout') ||
-    url.pathname.includes('/cart') ||
-    url.pathname.includes('/login') ||
-    url.pathname.includes('/register') ||
-    url.pathname.includes('/logout')
-  ) {
+  // Network-only for cart / checkout / auth / CSRF / admin / API
+  if (isSensitivePath(url.pathname)) {
     return;
   }
 
-  // Network-first for HTML navigations (keep CSRF/session fresh)
+  // Do not intercept HTML navigations — let the browser handle cookies/session natively.
+  // Caching HTML previously served stale empty-cart shells on mobile / PWA.
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match(req).then((cached) => cached || caches.match('/')))
-    );
     return;
   }
 
-  // Cache-first for static build assets & icons
+  // Cache-first for static build assets & icons only
   if (
     url.pathname.startsWith('/build/') ||
     url.pathname.startsWith('/icons/') ||

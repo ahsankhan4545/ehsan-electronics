@@ -25,8 +25,6 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
-
         $user = $request->user();
 
         // Admins must use the separate admin login page
@@ -39,7 +37,13 @@ class AuthenticatedSessionController extends Controller
                 ->with('error', 'Admin account detected. Please login from Admin Login page.');
         }
 
-        $this->cartService->mergeOnLogin($user);
+        // Merge guest cart BEFORE regenerating the session ID.
+        // Carts are keyed by session_id in DB; regenerate() issues a new ID and
+        // would orphan the guest cart if we merged afterward.
+        $previousSessionId = $request->session()->getId();
+        $this->cartService->mergeOnLogin($user, $previousSessionId);
+
+        $request->session()->regenerate();
 
         return redirect()->intended(route('home', absolute: false));
     }
