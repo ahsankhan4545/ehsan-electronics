@@ -5,7 +5,8 @@ nixPkgs = ["php82", "php82Extensions.pdo_mysql", "php82Extensions.mbstring", "ph
 cmds = [
   "composer install --no-dev --optimize-autoloader --no-interaction",
   "npm ci || npm install",
-  "npm run build"
+  "npm run build",
+  "test -f public/build/manifest.json"
 ]
 
 [start]
