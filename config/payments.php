@@ -20,7 +20,7 @@ return [
     'easypaisa' => [
         'enabled' => (bool) env('PAYMENT_EASYPAISA_ENABLED', true),
         'account_title' => env('PAYMENT_EASYPAISA_TITLE', 'Ehsan Electronics'),
-        'number' => env('PAYMENT_EASYPAISA_NUMBER', '03001234567'),
+        'number' => env('PAYMENT_EASYPAISA_NUMBER', '03305952206'),
     ],
 
 ];
