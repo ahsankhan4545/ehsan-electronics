@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 // Get App — large live QR + install tips (alias: /get-app)
 Route::get('/mobile', function () {
     $port = request()->getPort() ?: 8000;
-    $lanIp = \App\Support\LocalNetwork::lanIp();
+    $lanIp = LocalNetwork::lanIp();
     $lanUrl = $lanIp ? "http://{$lanIp}:{$port}" : null;
     $currentUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
     $publicUrl = rtrim(config('app.url') ?: $currentUrl, '/');
