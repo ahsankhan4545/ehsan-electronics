@@ -21,7 +21,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-stone-700 mb-1">Mobile Number</label>
-                        <input type="text" name="phone" value="{{ old('phone', auth()->user()->phone) }}" required placeholder="03001234567"
+                        <input type="text" name="phone" value="{{ old('phone', auth()->user()->phone) }}" required placeholder="-----"
                                class="w-full rounded-xl border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500">
                     </div>
                     <div class="md:col-span-2">

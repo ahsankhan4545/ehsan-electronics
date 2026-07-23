@@ -21,7 +21,7 @@
 
         <div>
             <x-input-label for="phone" value="Mobile Number (Pakistan)" />
-            <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" required autocomplete="tel" placeholder="03001234567" />
+            <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" required autocomplete="tel" placeholder="-----" />
             <p class="mt-1 text-xs text-stone-400">Format: 03XXXXXXXXX</p>
             <x-input-error :messages="$errors->get('phone')" class="mt-2" />
         </div>

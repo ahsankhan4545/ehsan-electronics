@@ -174,7 +174,6 @@
                 <p class="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-white">Contact</p>
                 <p class="mb-2 text-sm">Pakistan</p>
                 <p class="mb-2 text-sm">COD · Bank · EasyPaisa</p>
-                <p class="text-sm text-mc-yellow">{{ config('mail.from.address') }}</p>
             </div>
         </div>
         <div class="border-t border-white/10 py-4 text-center text-xs text-white/40">
