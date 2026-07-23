@@ -204,7 +204,6 @@
             </div>
             <div>
                 <p class="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-white">Customer Care</p>
-                <a href="{{ route('mobile') }}" class="mb-2 block text-sm hover:text-mc-yellow">Get App / QR</a>
                 <a href="{{ route('shop.index') }}" class="mb-2 block text-sm hover:text-mc-yellow">Shop</a>
                 <a href="{{ route('cart.index') }}" class="mb-2 block text-sm hover:text-mc-yellow">Cart</a>
                 @auth
@@ -216,9 +215,28 @@
                 @endauth
             </div>
             <div>
-                <p class="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-white">Contact</p>
-                <p class="mb-2 text-sm">Pakistan</p>
-                <p class="mb-2 text-sm">COD · EasyPaisa</p>
+                <p class="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-white">Scan to open app</p>
+                @php
+                    $appQrUrl = rtrim(config('app.url') ?: url('/'), '/');
+                    if (str_contains($appQrUrl, 'localhost') || str_contains($appQrUrl, '127.0.0.1')) {
+                        $appQrUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+                    }
+                @endphp
+                <a href="{{ route('mobile') }}" class="inline-block rounded-lg bg-white p-2 hover:ring-2 hover:ring-mc-yellow" title="Open Get App page">
+                    <img
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode($appQrUrl) }}"
+                        alt="QR code — scan to open Ehsan Electronics"
+                        width="140"
+                        height="140"
+                        class="block"
+                        loading="lazy"
+                    >
+                </a>
+                <p class="mt-2 text-xs leading-relaxed text-white/60">
+                    Phone camera se scan karo → store khulega.<br>
+                    Phir <strong class="text-mc-yellow">Install App</strong> / Add to Home Screen.
+                </p>
+                <a href="{{ route('mobile') }}" class="mt-2 inline-block text-sm text-mc-yellow hover:underline">Install tips →</a>
             </div>
         </div>
         <div class="border-t border-white/10 py-4 text-center text-xs text-white/40">

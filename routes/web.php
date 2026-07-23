@@ -15,27 +15,33 @@ use App\Http\Controllers\ShopController;
 use App\Support\LocalNetwork;
 use Illuminate\Support\Facades\Route;
 
-// Mobile QR + Get App page (public APP_URL QR for production)
+// Get App — large live QR + install tips (alias: /get-app)
 Route::get('/mobile', function () {
     $port = request()->getPort() ?: 8000;
-    $lanIp = LocalNetwork::lanIp();
+    $lanIp = \App\Support\LocalNetwork::lanIp();
     $lanUrl = $lanIp ? "http://{$lanIp}:{$port}" : null;
     $currentUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
     $publicUrl = rtrim(config('app.url') ?: $currentUrl, '/');
 
-    // Prefer live Railway / configured APP_URL for the main QR
     if (str_contains($publicUrl, 'localhost') || str_contains($publicUrl, '127.0.0.1')) {
         if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
             $publicUrl = $currentUrl;
         }
     }
 
+    $isLocal = app()->environment('local')
+        || str_contains($publicUrl, 'localhost')
+        || str_contains($publicUrl, '127.0.0.1');
+
     return view('mobile-open', [
         'lanUrl' => $lanUrl,
         'currentUrl' => $currentUrl,
         'publicUrl' => $publicUrl,
+        'showDevQr' => $isLocal,
     ]);
 })->name('mobile');
+
+Route::redirect('/get-app', '/mobile');
 
 // Public storefront
 Route::get('/', [HomeController::class, 'index'])->name('home');
