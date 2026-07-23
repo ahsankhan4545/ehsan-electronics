@@ -39,13 +39,16 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
+            // Railway/UI often stores blank as the literal string "null" — coerce it.
+            'scheme' => (($scheme = env('MAIL_SCHEME')) === null || $scheme === '' || $scheme === 'null')
+                ? null
+                : $scheme,
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            'timeout' => (int) env('MAIL_TIMEOUT', 15),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
@@ -63,6 +66,11 @@ return [
 
         'resend' => [
             'transport' => 'resend',
+        ],
+
+        // HTTPS API — works on Railway Hobby (SMTP is blocked there).
+        'resend-api' => [
+            'transport' => 'resend-api',
         ],
 
         'sendmail' => [

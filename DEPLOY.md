@@ -62,13 +62,23 @@ SESSION_SAME_SITE=lax
 # Leave unset / empty for *.up.railway.app (host-only cookie)
 # SESSION_DOMAIN=
 
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=yourgmail@gmail.com
-MAIL_PASSWORD=your-app-password
-MAIL_FROM_ADDRESS=yourgmail@gmail.com
+# IMPORTANT: Railway Hobby/Free BLOCKS outbound SMTP (smtp.gmail.com:587 times out).
+# Gmail App Password works locally, but NOT on Railway unless you upgrade to Pro.
+# Use Resend (HTTPS API, free tier) instead:
+MAIL_MAILER=resend-api
+RESEND_API_KEY=re_xxxxxxxx
+MAIL_FROM_ADDRESS="Ehsan Electronics <onboarding@resend.dev>"
 MAIL_FROM_NAME="Ehsan Electronics"
+MAIL_TIMEOUT=15
+# After you verify a domain in Resend, switch FROM to e.g. orders@yourdomain.com
+
+# Local / Railway Pro only (SMTP allowed on Pro):
+# MAIL_MAILER=smtp
+# MAIL_HOST=smtp.gmail.com
+# MAIL_PORT=587
+# MAIL_USERNAME=yourgmail@gmail.com
+# MAIL_PASSWORD=your-app-password
+# MAIL_FROM_ADDRESS=yourgmail@gmail.com
 
 PAYMENT_BANK_ENABLED=false
 PAYMENT_BANK_NAME="HBL"

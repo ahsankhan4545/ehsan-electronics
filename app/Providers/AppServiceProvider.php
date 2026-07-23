@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Mail\Transport\ResendApiTransport;
 use App\Repositories\CartRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\Contracts\CartRepositoryInterface;
@@ -11,6 +12,7 @@ use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\OrderRepository;
 use App\Repositories\ProductRepository;
 use App\Services\CartService;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +32,17 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Railway Hobby blocks outbound SMTP — use Resend HTTPS when API key is present.
+        Mail::extend('resend-api', function () {
+            $key = (string) config('services.resend.key');
+
+            if ($key === '') {
+                throw new \RuntimeException('RESEND_API_KEY is not configured.');
+            }
+
+            return new ResendApiTransport($key);
+        });
 
         View::composer('components.layouts.store', function ($view) {
             try {
