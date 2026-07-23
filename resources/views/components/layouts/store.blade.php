@@ -149,7 +149,7 @@
             <a href="{{ route('home') }}" class="block py-2 text-sm uppercase hover:text-mc-yellow">Home</a>
             <a href="{{ route('shop.index') }}" class="block py-2 text-sm uppercase hover:text-mc-yellow">Shop</a>
             <a href="{{ route('cart.index') }}" class="block py-2 text-sm uppercase hover:text-mc-yellow">Cart</a>
-            <a href="{{ route('mobile') }}" class="block py-2 text-sm uppercase text-mc-yellow hover:text-white">Get App / QR</a>
+            <a href="{{ route('mobile') }}" class="block py-2 text-sm uppercase text-mc-yellow hover:text-white">Get App</a>
             @foreach (($navCategories ?? collect()) as $category)
                 <a href="{{ route('shop.index', ['category' => $category->slug]) }}" class="block py-2 text-sm text-white/80 hover:text-mc-yellow">{{ $category->name }}</a>
             @endforeach
