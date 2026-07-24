@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -74,17 +75,35 @@ class ProductService
             return 'Product order history mein hai, delete nahi ho sakta.';
         }
 
-        DB::transaction(function () use ($product) {
-            $product->cartItems()->delete();
+        try {
+            DB::transaction(function () use ($product) {
+                $product->cartItems()->delete();
 
-            if ($product->image_path) {
-                Storage::disk('public')->delete($product->image_path);
+                if ($product->image_path) {
+                    Storage::disk('public')->delete($product->image_path);
+                }
+
+                $this->productRepository->delete($product);
+            });
+        } catch (QueryException $e) {
+            // FK restrict on order_items (or race after exists() check).
+            if ($this->isForeignKeyRestrict($e)) {
+                return 'Product order history mein hai, delete nahi ho sakta.';
             }
 
-            $this->productRepository->delete($product);
-        });
+            throw $e;
+        }
 
         return null;
+    }
+
+    private function isForeignKeyRestrict(QueryException $e): bool
+    {
+        $message = $e->getMessage();
+
+        return str_contains($message, '1451')
+            || str_contains($message, 'order_items_product_id_foreign')
+            || str_contains($message, 'Integrity constraint violation');
     }
 
     private function storeImage(UploadedFile $image): string
