@@ -64,7 +64,12 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
-        $this->productService->delete($product);
+        $error = $this->productService->delete($product);
+
+        if ($error !== null) {
+            return redirect()->route('admin.products.index')
+                ->with('error', $error);
+        }
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');

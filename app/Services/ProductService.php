@@ -7,6 +7,7 @@ use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -61,13 +62,29 @@ class ProductService
         return $this->productRepository->update($product, $data);
     }
 
-    public function delete(Product $product): bool
+    /**
+     * Delete a product when safe. Cart items are removed first.
+     * Products with order history are blocked (FK restrictOnDelete).
+     *
+     * @return string|null Error message when delete is blocked; null on success.
+     */
+    public function delete(Product $product): ?string
     {
-        if ($product->image_path) {
-            Storage::disk('public')->delete($product->image_path);
+        if ($product->orderItems()->exists()) {
+            return 'Product order history mein hai, delete nahi ho sakta.';
         }
 
-        return $this->productRepository->delete($product);
+        DB::transaction(function () use ($product) {
+            $product->cartItems()->delete();
+
+            if ($product->image_path) {
+                Storage::disk('public')->delete($product->image_path);
+            }
+
+            $this->productRepository->delete($product);
+        });
+
+        return null;
     }
 
     private function storeImage(UploadedFile $image): string
